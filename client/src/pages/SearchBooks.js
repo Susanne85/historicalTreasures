@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Jumbotron, Container, Col, Form, Button, Card, CardColumns } from 'react-bootstrap';
+import { Jumbotron, Container, Col, Form, Button, Card, CardColumns, Alert} from 'react-bootstrap';
 import { useMutation } from '@apollo/client';
 import Auth from '../utils/auth';
 import { searchGoogleBooks } from '../utils/API';
 import { saveBookIds, getSavedBookIds } from '../utils/localStorage';
 import { SAVE_BOOK } from '../utils/mutations';
- 
+
 const SearchBooks = () => {
   // create state for holding returned google api data
   const [searchedBooks, setSearchedBooks] = useState([]);
   // create state for holding our search field data
-  const [searchInput, setSearchInput] = useState('');
-
+  const [searchInput, setSearchInput] = useState({
+    searchPerson: '',
+    searchPlace: '',
+  });
+  // const [searchInput, setSearchInput] = useState('');
+  const [showAlert, setShowAlert] = useState(false);
   // create state to hold saved bookId values
   const [savedBookIds, setSavedBookIds] = useState(getSavedBookIds());
 
@@ -31,8 +35,18 @@ const SearchBooks = () => {
       return false;
     }
 
+    if (searchInput.searchPerson !== '' && searchInput.searchPlace !== '') {
+      setShowAlert(true);
+    }
+
     try {
       const response = await searchGoogleBooks(searchInput);
+      // Here is where we need to do send off a query request
+      if (searchInput.searchPerson !== ''){
+          // send off a query for search Person
+      }else {
+          // send off a query for search Place
+      }
 
       if (!response.ok) {
         throw new Error('something went wrong!');
@@ -47,9 +61,13 @@ const SearchBooks = () => {
         description: book.volumeInfo.description,
         image: book.volumeInfo.imageLinks?.thumbnail || '',
       }));
-       
+
       setSearchedBooks(bookData);
-      setSearchInput('');
+      setSearchInput({
+        searchPerson: '',
+        searchPlace: '',
+      });
+
     } catch (err) {
       console.error(err);
     }
@@ -59,21 +77,24 @@ const SearchBooks = () => {
   const handleSaveBook = async (bookId) => {
     // find the book in `searchedBooks` state by the matching id
     const bookToSave = searchedBooks.find((book) => book.bookId === bookId);
-    
+
     // get token
     const token = Auth.loggedIn() ? Auth.getToken() : null;
     if (!token) {
       return false;
     }
-   
+
     try {
-      const {data} = await saveBook({
-        variables: {bookData: {
-          ...bookToSave, 
-          // server needs desc in the payload, fallback to NA
-          // it is not happy with empty string get error that path is required
-          description: bookToSave.description || 'NA'
-        }}})
+      const { data } = await saveBook({
+        variables: {
+          bookData: {
+            ...bookToSave,
+            // server needs desc in the payload, fallback to NA
+            // it is not happy with empty string get error that path is required
+            description: bookToSave.description || 'NA'
+          }
+        }
+      })
       setSavedBookIds([...savedBookIds, bookToSave.bookId]);
     } catch (err) {
       console.error(err);
@@ -84,17 +105,29 @@ const SearchBooks = () => {
     <>
       <Jumbotron fluid className='text-light bg-dark'>
         <Container>
-          <h1>Search for Books!</h1>
+          <h1>Search for a Person or Place</h1>
+          <Alert dismissible onClose={() => setShowAlert(false)} show={showAlert} variant='danger'>
+            Only Person or Place can be searched!
+          </Alert>
           <Form onSubmit={handleFormSubmit}>
             <Form.Row>
               <Col xs={12} md={8}>
                 <Form.Control
-                  name='searchInput'
-                  value={searchInput}
+                  name='searchPerson'
+                  value={searchInput.searchPerson}
                   onChange={(e) => setSearchInput(e.target.value)}
                   type='text'
                   size='lg'
-                  placeholder='Search for a book'
+                  placeholder='Enter name of Person'
+                />
+                <br></br>
+                <Form.Control
+                  name='searchInput'
+                  value={searchInput.searchPlace}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  type='text'
+                  size='lg'
+                  placeholder='Enter name of Place'
                 />
               </Col>
               <Col xs={12} md={4}>
@@ -111,7 +144,7 @@ const SearchBooks = () => {
         <h2>
           {searchedBooks.length
             ? `Viewing ${searchedBooks.length} results:`
-            : 'Search for a book to begin'}
+            : 'Search for a person or place to begin'}
         </h2>
         <CardColumns>
           {searchedBooks.map((book) => {

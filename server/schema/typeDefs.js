@@ -5,17 +5,6 @@ type Query{
     me:User
 }
 
-type Book {
-    _id:ID!
-    bookId:String!
-    authors:[String]!
-    title:String!
-    description:String!
-    image:String
-    link:String
-}
-
-
 type User {
     _id:ID!
     username:String!
@@ -28,21 +17,27 @@ type Auth{
     token:String!
     user:User
 }
+type Person {
+    _id:ID!
+    accessionId:String!
+    name:String!
+    surname:String!
+    born:String 
+    died:String
+    occupation:String
+}
 
-input BookInput{
-    bookId:String!
-    authors:[String!]
-    title:String!
+type Place {
+    _id:ID!
+    accessionId:String!
+    name:String!
     description:String!
-    image:String
-    link:String
+    dateBuilt:String 
 }
 
 type Mutation{
     login(email:String!, password:String! ):Auth
     addUser(username:String!, email:String!, password:String!):Auth
-    saveBook(bookData:BookInput!):User!
-    removeBook(bookId:String!):User!
 } 
 
 `;

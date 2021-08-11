@@ -19,7 +19,6 @@ type Auth{
     token:String!
     user:User
 }
-
 type Person {
     _id:ID!
     accessionId:String!
@@ -27,6 +26,7 @@ type Person {
     surname:String!
     born:String 
     died:String
+    place: [Place] @relation(name:"Buried_In", direction:"IN")
 }
 
 type Place {
@@ -35,6 +35,23 @@ type Place {
     name:String!
     description:String!
     dateBuilt:String 
+    person: [Person] 
+}
+
+type LivedIn {
+    _id:ID!
+    startDate:String!
+    endDate:String!
+}
+
+type BuriedIn {
+    _id:ID!
+    burialDate:String!
+}
+
+type Married {
+    _id:ID!
+    marriageDate:String!
 }
 
 type Mutation{

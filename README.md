@@ -27,7 +27,10 @@ This is an applicaion which allows a user to search for people or places that th
     ```js
     npm install
     npm install express
+    npm install dotenv
     npm install apollo-server-express graphql
+    npm install @neo4j/graphql
+    npm install graphql neo4j-driver
     npm install bcrypt
     ```
     

@@ -1,48 +1,67 @@
 import React, { useState, useEffect } from 'react';
-import { Jumbotron, Container, Col, Form, Button, Card, CardColumns, Alert} from 'react-bootstrap';
+import { Jumbotron, Container, Col, Form, Button, Card, CardColumns, Alert } from 'react-bootstrap';
 import { useQuery } from '@apollo/client';
 import Auth from '../utils/auth';
 
-import { GET_PEOPLE, GET_PLACE} from '../utils/queries';
-const SearchBooks = () => {
-  
+import { GET_PEOPLE, GET_PLACE } from '../utils/queries';
+const SearchHistoricalItems = () => {
+
   const [searchInput, setSearchInput] = useState({
     searchPerson: '',
     searchPlace: '',
   });
+
   const [searchedItems, setSearchedItems] = useState([]);
+
   const { error, loading, data: userData } = useQuery(GET_PEOPLE);
+
   const { errorPlace, loadingPlace, data: placeData } = useQuery(GET_PLACE);
+
   const [showAlert, setShowAlert] = useState(false);
-  console.log('people', userData);
-  console.log('place', placeData);
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    const newValue = value.charAt(0).toUpperCase() + value.slice(1);
+    setSearchInput({ ...searchInput, [name]: newValue });
+  };
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-
     if (!searchInput) {
       return false;
     }
 
     if (searchInput.searchPerson !== '' && searchInput.searchPlace !== '') {
       setShowAlert(true);
+      return;
     }
 
+    let itemData = [];
     try {
-  
-      // Here is where we need to do send off a query request
-      if (searchInput.searchPerson !== ''){
-          // send off a query for search Person graphql query
-      }else {
-          // send off a query for search Place
+      if (searchInput.searchPerson !== '') {
+        itemData = userData.people.map((item) => ({
+          accessionID: item.accessionID,
+          name: item.name + ' ' + item.surname,
+          surname: item.surname,
+          born: "Born : " + item.born,
+          died: "Died : " + item.died
+        }));
+
+        if (searchInput.searchPerson !== "*") {
+          itemData = itemData.filter(function (item) { return item.surname === searchInput.searchPerson });
+        }
+
+      } else if (searchInput.searchPlace !== '') {
+        itemData = placeData.places.map((item) => ({
+          accessionID: item.accessionID,
+          name: item.name,
+          description: item.description,
+          dateBuilt: item.dateBuilt
+        }));
+
+        if (searchInput.searchPlace !== "*") {
+          itemData = itemData.filter(function (item) { return item.name === searchInput.searchPlace });
+        }
       }
-      const itemData = userData.people.map((item) => ({
-        accessionID: item.accessionID,
-        name: item.name,
-        surname:item.surname,
-        born: item.born,
-        died: item.died,
-        place: item.place
-      }));
 
       setSearchedItems(itemData);
 
@@ -71,16 +90,16 @@ const SearchBooks = () => {
                 <Form.Control
                   name='searchPerson'
                   value={searchInput.searchPerson}
-                  onChange={(e) => setSearchInput(e.target.value)}
+                  onChange={handleInputChange}
                   type='text'
                   size='lg'
                   placeholder='Enter name of Person'
                 />
                 <br></br>
                 <Form.Control
-                  name='searchInput'
+                  name='searchPlace'
                   value={searchInput.searchPlace}
-                  onChange={(e) => setSearchInput(e.target.value)}
+                  onChange={handleInputChange}
                   type='text'
                   size='lg'
                   placeholder='Enter name of Place'
@@ -100,12 +119,13 @@ const SearchBooks = () => {
         <CardColumns>
           {searchedItems.map((item) => {
             return (
-              <Card key={item.itemId} border='dark'>
+              <Card key={item.name} border='dark'>
                 <Card.Body>
-                  <Card.Title>{item.name} {item.surname}</Card.Title>
-                  <p className='small'>Born: {item.born}</p>
-                  <p className='small'>Died: {item.died}</p>
-                  <Card.Text>{item.place}</Card.Text>
+                  <Card.Title>{item.name} </Card.Title>
+                  <p className='medium'>{item.born}</p>
+                  <p className='medium'>{item.died}</p>
+                  <p className='medium'>{item.description}</p>
+                  <p className='medium'>{item.dateBuilt}</p>
                 </Card.Body>
               </Card>
             );
@@ -116,4 +136,5 @@ const SearchBooks = () => {
   );
 };
 
-export default SearchBooks;
+export default  SearchHistoricalItems;
+

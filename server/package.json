@@ -11,12 +11,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@neo4j/graphql": "^1.2.4",
     "apollo-server-express": "^2.25.2",
     "bcrypt": "^4.0.1",
+    "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "graphql": "^15.5.1",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.9.10"
+    "mongoose": "^5.9.10",
+    "neo4j-driver": "^4.3.2"
   },
   "devDependencies": {
     "nodemon": "^2.0.3"

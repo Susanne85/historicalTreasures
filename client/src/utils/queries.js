@@ -19,3 +19,25 @@ query getMe{
     }
   }
 `;
+
+export const GET_PEOPLE = gql`
+query getpeople {
+	people {
+    accessionId
+    name
+    surname
+    born
+    died
+  }
+}`;
+
+export const GET_PLACE = gql`
+query getPlace {
+  places {
+    accessionId
+    name
+    description
+    dateBuilt
+  }
+}
+`;

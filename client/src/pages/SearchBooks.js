@@ -1,33 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Jumbotron, Container, Col, Form, Button, Card, CardColumns, Alert} from 'react-bootstrap';
-import { useMutation } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import Auth from '../utils/auth';
-import { searchGoogleBooks } from '../utils/API';
-import { saveBookIds, getSavedBookIds } from '../utils/localStorage';
-import { SAVE_BOOK } from '../utils/mutations';
 
+import { GET_PEOPLE, GET_PLACE} from '../utils/queries';
 const SearchBooks = () => {
-  // create state for holding returned google api data
-  const [searchedBooks, setSearchedBooks] = useState([]);
-  // create state for holding our search field data
+  
   const [searchInput, setSearchInput] = useState({
     searchPerson: '',
     searchPlace: '',
   });
-  // const [searchInput, setSearchInput] = useState('');
+  const [searchedItems, setSearchedItems] = useState([]);
+  const { error, loading, data: userData } = useQuery(GET_PEOPLE);
+  const { errorPlace, loadingPlace, data: placeData } = useQuery(GET_PLACE);
   const [showAlert, setShowAlert] = useState(false);
-  // create state to hold saved bookId values
-  const [savedBookIds, setSavedBookIds] = useState(getSavedBookIds());
-
-  // set up useEffect hook to save `savedBookIds` list to localStorage on component unmount
-  // learn more here: https://reactjs.org/docs/hooks-effect.html#effects-with-cleanup
-  useEffect(() => {
-    return () => saveBookIds(savedBookIds);
-  });
-
-  const [saveBook] = useMutation(SAVE_BOOK);
-
-  // create method to search for books and set state on form submit
+  console.log('people', userData);
+  console.log('place', placeData);
   const handleFormSubmit = async (event) => {
     event.preventDefault();
 
@@ -40,29 +28,24 @@ const SearchBooks = () => {
     }
 
     try {
-      const response = await searchGoogleBooks(searchInput);
+  
       // Here is where we need to do send off a query request
       if (searchInput.searchPerson !== ''){
-          // send off a query for search Person
+          // send off a query for search Person graphql query
       }else {
           // send off a query for search Place
       }
-
-      if (!response.ok) {
-        throw new Error('something went wrong!');
-      }
-
-      const { items } = await response.json();
-
-      const bookData = items.map((book) => ({
-        bookId: book.id,
-        authors: book.volumeInfo.authors || ['No author to display'],
-        title: book.volumeInfo.title,
-        description: book.volumeInfo.description,
-        image: book.volumeInfo.imageLinks?.thumbnail || '',
+      const itemData = userData.people.map((item) => ({
+        accessionID: item.accessionID,
+        name: item.name,
+        surname:item.surname,
+        born: item.born,
+        died: item.died,
+        place: item.place
       }));
 
-      setSearchedBooks(bookData);
+      setSearchedItems(itemData);
+
       setSearchInput({
         searchPerson: '',
         searchPlace: '',
@@ -73,33 +56,6 @@ const SearchBooks = () => {
     }
   };
 
-  // create function to handle saving a book to our database
-  const handleSaveBook = async (bookId) => {
-    // find the book in `searchedBooks` state by the matching id
-    const bookToSave = searchedBooks.find((book) => book.bookId === bookId);
-
-    // get token
-    const token = Auth.loggedIn() ? Auth.getToken() : null;
-    if (!token) {
-      return false;
-    }
-
-    try {
-      const { data } = await saveBook({
-        variables: {
-          bookData: {
-            ...bookToSave,
-            // server needs desc in the payload, fallback to NA
-            // it is not happy with empty string get error that path is required
-            description: bookToSave.description || 'NA'
-          }
-        }
-      })
-      setSavedBookIds([...savedBookIds, bookToSave.bookId]);
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   return (
     <>
@@ -141,32 +97,15 @@ const SearchBooks = () => {
       </Jumbotron>
 
       <Container>
-        <h2>
-          {searchedBooks.length
-            ? `Viewing ${searchedBooks.length} results:`
-            : 'Search for a person or place to begin'}
-        </h2>
         <CardColumns>
-          {searchedBooks.map((book) => {
+          {searchedItems.map((item) => {
             return (
-              <Card key={book.bookId} border='dark'>
-                {book.image ? (
-                  <Card.Img src={book.image} alt={`The cover for ${book.title}`} variant='top' />
-                ) : null}
+              <Card key={item.itemId} border='dark'>
                 <Card.Body>
-                  <Card.Title>{book.title}</Card.Title>
-                  <p className='small'>Authors: {book.authors}</p>
-                  <Card.Text>{book.description}</Card.Text>
-                  {Auth.loggedIn() && (
-                    <Button
-                      disabled={savedBookIds?.some((savedBookId) => savedBookId === book.bookId)}
-                      className='btn-block btn-info'
-                      onClick={() => handleSaveBook(book.bookId)}>
-                      {savedBookIds?.some((savedBookId) => savedBookId === book.bookId)
-                        ? 'This book has already been saved!'
-                        : 'Save this Book!'}
-                    </Button>
-                  )}
+                  <Card.Title>{item.name} {item.surname}</Card.Title>
+                  <p className='small'>Born: {item.born}</p>
+                  <p className='small'>Died: {item.died}</p>
+                  <Card.Text>{item.place}</Card.Text>
                 </Card.Body>
               </Card>
             );

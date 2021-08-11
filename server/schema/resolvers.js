@@ -12,6 +12,22 @@ const resolvers = {
             }
             throw new AuthenticationError('You need to be logged in!');
         },
+        //New query for get Person  or Place has the context, contains the driver
+        getPeople: async (parent, args, context) => {
+            const session = context.driver.session();
+
+            const people = await session
+                .run('MATCH (n:Person)  RETURN n ')
+                console.log('people',people)
+            people.map(person => {
+                return {
+                    id: person._fields[0].low,
+                    name: person._fields[0].properties.name,
+                    surname: person._fields[0].properties.surname,
+                }
+            })
+        }
+
     },
 
     Mutation: {

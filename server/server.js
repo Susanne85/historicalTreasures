@@ -23,11 +23,12 @@ const driver = neo4j.driver(
   )
 )
 
-const neoSchema = new Neo4jGraphQL({ typeDefs, driver })
+const neoSchema = new Neo4jGraphQL({ 
+  typeDefs,
+  resolvers, 
+  driver })
 
 const server = new ApolloServer({
-  typeDefs,
-  resolvers,
   context: {
     authMiddleware,
     driver,

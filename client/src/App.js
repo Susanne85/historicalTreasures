@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import SearchHistoricalItems from './pages/SearchHistoricalItems';
-import SavedBooks from './pages/SavedBooks';
+import SavedItems from './pages/SavedItems';
 import Navbar from './components/Navbar';
 import {
   ApolloClient,
@@ -41,7 +41,7 @@ function App() {
         <Switch>
 
           <Route exact path='/' component={SearchHistoricalItems} />
-          <Route exact path='/saved' component={SavedBooks} />
+          <Route exact path='/saved' component={SavedItems} />
           <Route render={() => <h1 className='display-2'>Wrong page!</h1>} />
         </Switch>
       </>

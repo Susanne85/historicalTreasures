@@ -65,7 +65,22 @@ const resolvers = {
                 return updatedUser;
             }
             throw new AuthenticationError('You need to be logged in!');
-        }
+        },
+        removeItem: async (_, { email, itemId }, context) => {
+            const user = await User.findOne({ email });
+
+            if (user) {
+                const updatedUser =
+                    await User.findOneAndUpdate(
+                        { _id: user._id },
+                        {
+                            $pull: { savedItems: { accessionId: itemId } },
+                        }
+                    )
+                return updatedUser;
+            }
+            throw new AuthenticationError('You need to be logged in!');
+        },
     }
 
 }

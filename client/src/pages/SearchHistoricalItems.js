@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Jumbotron, Container, Col, Form, Button, Card, CardColumns, Alert } from 'react-bootstrap';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import Auth from '../utils/auth';
-
+import { saveItemIds, getSavedItemIds } from '../utils/localStorage';
 import { GET_PEOPLE, GET_PLACE } from '../utils/queries';
+import { SAVE_ITEM } from '../utils/mutations';
 const SearchHistoricalItems = () => {
 
   const [searchInput, setSearchInput] = useState({
@@ -12,18 +13,25 @@ const SearchHistoricalItems = () => {
   });
 
   const [searchedItems, setSearchedItems] = useState([]);
-
+  const [savedItemIds, setSavedItemIds] = useState(getSavedItemIds());
   const { error, loading, data: userData } = useQuery(GET_PEOPLE);
 
   const { errorPlace, loadingPlace, data: placeData } = useQuery(GET_PLACE);
 
   const [showAlert, setShowAlert] = useState(false);
+  useEffect(() => {
+    return () => saveItemIds(savedItemIds);
+  });
+
+  const [saveItem] = useMutation(SAVE_ITEM);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     const newValue = value.charAt(0).toUpperCase() + value.slice(1);
     setSearchInput({ ...searchInput, [name]: newValue });
   };
+
+
   const handleFormSubmit = async (event) => {
     event.preventDefault();
     if (!searchInput) {
@@ -35,11 +43,11 @@ const SearchHistoricalItems = () => {
       return;
     }
 
-    let itemData = [];
     try {
+      let itemData = [];
       if (searchInput.searchPerson !== '') {
         itemData = userData.people.map((item) => ({
-          accessionID: item.accessionID,
+          accessionId: item.accessionId,
           name: item.name + ' ' + item.surname,
           surname: item.surname,
           born: "Born : " + item.born,
@@ -52,7 +60,7 @@ const SearchHistoricalItems = () => {
 
       } else if (searchInput.searchPlace !== '') {
         itemData = placeData.places.map((item) => ({
-          accessionID: item.accessionID,
+          accessionId: item.accessionId,
           name: item.name,
           description: item.description,
           dateBuilt: item.dateBuilt
@@ -75,6 +83,40 @@ const SearchHistoricalItems = () => {
     }
   };
 
+  const handleSaveItem = async (itemId) => {
+
+    const itemToSave = searchedItems.find((item) => item.accessionId === itemId);
+
+    const token = Auth.loggedIn() ? Auth.getToken() : null;
+    if (!token) {
+      return false;
+    }
+
+    const userProfile = Auth.getProfile();
+     
+    if (itemToSave.surname != undefined) {
+      delete itemToSave.surname;
+      delete itemToSave.born;
+      delete itemToSave.died;
+    } else {
+      delete itemToSave.dateBuilt;
+    }
+
+    try {
+      const { data } = await saveItem({
+        variables: {
+          email:userProfile.data.email,
+          itemData: {
+            ...itemToSave,
+          }
+        }
+      })
+
+      setSavedItemIds([...savedItemIds, itemToSave.accessionId]);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <>
@@ -119,13 +161,27 @@ const SearchHistoricalItems = () => {
         <CardColumns>
           {searchedItems.map((item) => {
             return (
-              <Card key={item.name} border='dark'>
+              <Card key={item.accessionId} border='dark'>
                 <Card.Body>
                   <Card.Title>{item.name} </Card.Title>
+                  <p className='medium'>Accesion ID : {item.accessionId}</p>
                   <p className='medium'>{item.born}</p>
                   <p className='medium'>{item.died}</p>
                   <p className='medium'>{item.description}</p>
                   <p className='medium'>{item.dateBuilt}</p>
+                  {Auth.loggedIn() && (
+                    <Button
+                      disabled={savedItemIds?.some((savedItemId) => savedItemId === item.accessionId)}
+                      className='btn-block btn-info'
+                      onClick={() => handleSaveItem(item.accessionId)}>
+                      {savedItemIds?.some((savedItemId) => savedItemId === item.accessionId)
+                        ? 'This item has already been saved!'
+                        : 'Save this item!'}
+                    </Button>
+                  )}
+                  {!Auth.loggedIn() && (
+                    <Card.Text>Log in to save items to your cart</Card.Text>
+                  )}
                 </Card.Body>
               </Card>
             );
@@ -136,5 +192,5 @@ const SearchHistoricalItems = () => {
   );
 };
 
-export default  SearchHistoricalItems;
+export default SearchHistoricalItems;
 

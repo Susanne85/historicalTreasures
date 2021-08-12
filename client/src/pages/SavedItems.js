@@ -3,13 +3,26 @@ import { useQuery, useMutation } from "@apollo/client"
 import { Jumbotron, Container, CardColumns, Card, Button } from 'react-bootstrap';
 
 import Auth from '../utils/auth';
-import { removeBookId } from '../utils/localStorage';
+import { removeItemId } from '../utils/localStorage';
 import { GET_ME } from '../utils/queries';
-import { REMOVE_BOOK } from '../utils/mutations';
-const SavedBooks = () => {
-  const { error, loading, data: userData } = useQuery(GET_ME);
-  const [removeBook]  = useMutation(REMOVE_BOOK);
-  
+import { REMOVE_ITEM } from '../utils/mutations';
+const SavedItems = () => {
+
+  const userProfile = Auth.getProfile();
+
+  const { error, loading, data: userData } = useQuery(GET_ME, {
+    variables: { email: userProfile.data.email }
+  })
+
+  const [removeItem] = useMutation(REMOVE_ITEM);
+  let itemData = [];
+  if (userData) {
+    itemData = userData.me.savedItems.map((item) => ({
+      accessionId: item.accessionId,
+      name: item.name,
+      description: item.description
+    }));
+  }
   const getUserData = async () => {
     try {
       const token = Auth.loggedIn() ? Auth.getToken() : null;
@@ -17,6 +30,7 @@ const SavedBooks = () => {
       if (!token) {
         return false;
       }
+
     } catch (err) {
       console.error(err);
     }
@@ -24,20 +38,22 @@ const SavedBooks = () => {
 
   getUserData();
   // create function that accepts the book's mongo _id value as param and deletes the book from the database
-  const handleDeleteBook = async (bookId) => {
+  const handleDeleteItem = async (itemId) => {
     const token = Auth.loggedIn() ? Auth.getToken() : null;
 
     if (!token) {
       return false;
     }
-    
+
+    console.log('here', itemId);
     try {
-       const userData = await removeBook({
-       variables:{ bookId},});
- 
+      const userData = await removeItem({
+        variables: { email: userProfile.data.email, itemId },
+      });
+
       // upon success, remove book's id from localStorage
-       removeBookId(bookId);
-       
+      removeItemId(itemId);
+
     } catch (err) {
       console.error(err);
     }
@@ -52,26 +68,20 @@ const SavedBooks = () => {
     <>
       <Jumbotron fluid className='text-light bg-dark'>
         <Container>
-          <h1>Viewing saved books!</h1>
+          <h1>Viewing saved Items!</h1>
         </Container>
       </Jumbotron>
       <Container>
-        <h2>
-          {userData.me.savedBooks.length
-            ? `Viewing ${userData.me.savedBooks.length} saved ${userData.me.savedBooks.length === 1 ? 'book' : 'books'}:`
-            : 'You have no saved books!'}
-        </h2>
         <CardColumns>
-          {userData.me.savedBooks.map((book) => {
+          {itemData.map((item) => {
             return (
-              <Card key={book.bookId} border='dark'>
-                {book.image ? <Card.Img src={book.image} alt={`The cover for ${book.title}`} variant='top' /> : null}
+              <Card key={item.accessionId} border='dark'>
                 <Card.Body>
-                  <Card.Title>{book.title}</Card.Title>
-                  <p className='small'>Authors: {book.authors}</p>
-                  <Card.Text>{book.description}</Card.Text>
-                  <Button className='btn-block btn-danger' onClick={() => handleDeleteBook(book.bookId)}>
-                    Delete this Book!
+                  <Card.Title> {item.name}</Card.Title>
+                  <Card.Text>Accession Id : {item.accessionId}</Card.Text>
+                  <Card.Text>{item.description}</Card.Text>
+                  <Button className='btn-block btn-danger' onClick={() => handleDeleteItem(item.accessionId)}>
+                    Delete this Item!
                   </Button>
                 </Card.Body>
               </Card>
@@ -83,4 +93,4 @@ const SavedBooks = () => {
   );
 };
 
-export default SavedBooks;
+export default SavedItems;

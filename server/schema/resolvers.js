@@ -7,13 +7,15 @@ const { signToken } = require('../utils/auth');
 
 const resolvers = {
     Query: {
-        me: async (parent, args, context) => {
-            if (context.user) {
-                return User.findOne({ _id: context.user._id })
+        me: async (parent, { email }, context) => {
+            const user = await User.findOne({ email });
+
+            if (user) {
+                const userData = User.findOne({ _id: user._id })
+                return userData;
             }
             throw new AuthenticationError('You need to be logged in!');
         },
-
     },
 
     Mutation: {
@@ -47,13 +49,13 @@ const resolvers = {
         },
         saveItem: async (_, { email, itemData }, context) => {
             const user = await User.findOne({ email });
-            
+
             if (user) {
                 const updatedUser =
                     await User.findOneAndUpdate(
-                        { _id: user._id},
+                        { _id: user._id },
                         {
-                            $push: { savedItem: itemData },
+                            $push: { savedItems: itemData },
                         },
                         {
                             new: true,

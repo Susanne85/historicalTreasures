@@ -21,7 +21,7 @@ const userSchema = new Schema(
       required: true,
     },
     // set savedItem be an array of data that the user has saved to their Cart
-    savedItem: [itemSchema],
+    savedItems: [itemSchema],
   },
   // set this to use virtual below
   {

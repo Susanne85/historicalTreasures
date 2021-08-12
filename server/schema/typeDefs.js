@@ -7,12 +7,18 @@ type Query{
     getPlace:[Place]
 }
 
+type Item {
+    _id:ID!
+    accessionId:String!
+    name:String!
+    description:String
+}
+
 type User {
     _id:ID!
     username:String!
     email:String!
-    savedPlace: [Place]
-    savedPerson: [Person]
+    savedItems: [Item]
 }
 
 type Auth{
@@ -36,10 +42,32 @@ type Place {
     description:String!
     dateBuilt:String 
 }
+type LivedIn {
+    _id:ID!
+    startDate:String!
+    endDate:String!
+}
+
+type BuriedIn {
+    _id:ID!
+    burialDate:String!
+}
+
+type Married {
+    _id:ID!
+    marriageDate:String!
+}
+
+input ItemInput {
+    accessionId: String!
+    name:String!
+    description:String
+}
 
 type Mutation{
     login(email:String!, password:String! ):Auth
     addUser(username:String!, email:String!, password:String!):Auth
+    saveItem(email:String!,itemData:ItemInput!):User!
 } 
 
 `;

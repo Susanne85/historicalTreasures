@@ -1,8 +1,7 @@
 const { Schema, model } = require('mongoose');
 const bcrypt = require('bcrypt');
 
-const personSchema = require('./Person');
-const placeSchema = require('./Place');
+const itemSchema = require('./Item');
 
 const userSchema = new Schema(
   {
@@ -21,10 +20,8 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
-    // set savedPlaceto be an array of data that adheres to the placechema
-    savedPlace: [placeSchema],
-    // set savedPlaceto be an array of data that adheres to the personchema
-    savedPerson: [personSchema],
+    // set savedItem be an array of data that the user has saved to their Cart
+    savedItem: [itemSchema],
   },
   // set this to use virtual below
   {

@@ -22,9 +22,6 @@ const personSchema = new Schema({
   died: {
     type: String,
   },
-  occupation: {
-    type: String,
-  },
 
 });
 

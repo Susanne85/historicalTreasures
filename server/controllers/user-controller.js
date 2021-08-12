@@ -42,5 +42,19 @@ module.exports = {
     const token = signToken(user);
     res.json({ token, user });
   },
-  
+  async saveItem({ user, body }, res) {
+    console.log('User-controller user ', user);
+    console.log('User-controller body ', body);
+    try {
+      const updatedUser = await User.findOneAndUpdate(
+        { _id: user._id },
+        { $addToSet: { savedItems: body } },
+        { new: true, runValidators: true }
+      );
+      return res.json(updatedUser);
+    } catch (err) {
+      console.log(err);
+      return res.status(400).json(err);
+    }
+  },
 };

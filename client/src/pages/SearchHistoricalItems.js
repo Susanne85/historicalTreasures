@@ -94,7 +94,7 @@ const SearchHistoricalItems = () => {
 
     const userProfile = Auth.getProfile();
      
-    if (itemToSave.surname != undefined) {
+    if (itemToSave.surname !== undefined) {
       delete itemToSave.surname;
       delete itemToSave.born;
       delete itemToSave.died;

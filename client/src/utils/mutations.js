@@ -55,3 +55,14 @@ mutation removeItem($email:String!,$itemId:String!){
 }
 `;
 
+export const CREATE_PERSON = gql`
+mutation createPerson($personData:PersonCreate!){
+  createPerson (personDetails:$personData){
+      accessionId
+      name
+      surname
+      born
+      died
+  }
+}
+`;

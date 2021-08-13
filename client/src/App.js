@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import SearchHistoricalItems from './pages/SearchHistoricalItems';
 import SavedItems from './pages/SavedItems';
+import AddPerson from './pages/AddPerson';
 import Navbar from './components/Navbar';
 import {
   ApolloClient,
@@ -39,9 +40,9 @@ function App() {
       <>
         <Navbar />
         <Switch>
-
           <Route exact path='/' component={SearchHistoricalItems} />
           <Route exact path='/saved' component={SavedItems} />
+          <Route exact path='/add' component={AddPerson} />
           <Route render={() => <h1 className='display-2'>Wrong page!</h1>} />
         </Switch>
       </>

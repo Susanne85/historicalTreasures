@@ -15,7 +15,7 @@ const AppNavbar = () => {
       <Navbar bg='primary' variant='dark' expand='lg'>
         <Container fluid>
           <Navbar.Brand as={Link} to='/'>
-            Kojonup Historical Society 
+            Time Back Time Treasures
           </Navbar.Brand>
           <Navbar.Toggle aria-controls='navbar' />
           <Navbar.Collapse id='navbar'>

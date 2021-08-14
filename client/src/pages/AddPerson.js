@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Jumbotron, Container, Col, Form, Button, Card, CardColumns, Alert } from 'react-bootstrap';
-import { useQuery, useMutation } from '@apollo/client';
-import Auth from '../utils/auth';
+import React, { useState } from 'react';
+import { Jumbotron, Container, Col, Form, Button,Alert } from 'react-bootstrap';
+import { useMutation } from '@apollo/client';
 
-import {CREATE_PERSON} from '../utils/mutations'
+import { CREATE_PEOPLE } from '../utils/mutations'
 const AddPerson = () => {
 
   const [createPerson, setCreatePerson] = useState({
@@ -11,11 +10,14 @@ const AddPerson = () => {
     name: '',
     surname: '',
     born: '',
-    died: ''
+    died: '',
+    previousPerson:''
   });
 
   const [showAlert, setShowAlert] = useState(false);
-  const [addNewPerson] = useMutation(CREATE_PERSON);
+
+  const [addNewPerson] = useMutation(CREATE_PEOPLE);
+
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     let newValue = value;
@@ -28,26 +30,39 @@ const AddPerson = () => {
   const handleFormSubmit = async (event) => {
     event.preventDefault();
 
-    console.log('1', createPerson.accessionId);
-    console.log('2', createPerson.surname);
-    
-
     try {
+
       const { data } = await addNewPerson({
         variables: {
-          personData: {
-            ...{accessionId: createPerson.accessionId,
-              name: createPerson.name,
-              surname: createPerson.surname,
-              born: createPerson.born,
-              died: createPerson.died}
-          }
+          createPeopleInput: [
+            {
+              "accessionId": createPerson.accessionId,
+              "name": createPerson.name,
+              "surname": createPerson.surname,
+              "born": createPerson.born,
+              "died": createPerson.died
+            }
+          ]
         }
-      })
+      });
+      
+      if (data.createPeople.people.length > 0){
+        createPerson.previousPerson = createPerson.name + ' ' +createPerson.surname
+        setShowAlert(true);
+      }
 
     } catch (error) {
       console.error(error);
-    }    
+    }
+    
+     
+     createPerson.accessionId = '';
+     createPerson.name = '';
+     createPerson.surname = '';
+     createPerson.born = '';
+     createPerson.died = '';
+    
+    setCreatePerson({ ...createPerson});
   };
 
   return (
@@ -57,19 +72,19 @@ const AddPerson = () => {
           <h1>Enter Details for a Person</h1>
           <p>Accession Id, First Name and Surname must be entered</p>
           <Alert dismissible onClose={() => setShowAlert(false)} show={showAlert} variant='danger'>
-            Only Person or Place can be searched!
+            Person Record has been added
           </Alert>
           <Form onSubmit={handleFormSubmit}>
             <Form.Row>
               <Col xs={12} md={8}>
                 <Form.Control
-                  name='accessionId'
-                  value={createPerson.accesionId}
+                  name='accessionId'   
+                  value={createPerson.accessionId}
                   onChange={handleInputChange}
                   type='text'
                   size='lg'
                   placeholder='Accession Id'
-                  required  
+                  required
                 />
                 <Form.Control.Feedback type="invalid">
                   Please enter an Accession Id
@@ -82,7 +97,7 @@ const AddPerson = () => {
                   type='text'
                   size='lg'
                   placeholder='First Name'
-                  required  
+                  required
                 />
                 <Form.Control.Feedback type="invalid">
                   Please enter a First Name
@@ -95,7 +110,7 @@ const AddPerson = () => {
                   type='text'
                   size='lg'
                   placeholder='Surname'
-                  required  
+                  required
                 />
                 <Form.Control.Feedback type="invalid">
                   Please enter a Surname

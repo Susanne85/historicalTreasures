@@ -3,9 +3,8 @@
 
 ## Description
 
-This is an applicaion which allows a user to search for people or places that their local Historical Society holds. 
-
-  
+This is an applicaion which allows a user to search for people or places that their local Historical Society holds.  Users are able to save items to their cart and they are able to delete items from their cart.
+Users are also able to add a person record to the Historical Treasures database.
 
 
 ## 📖Table of Contents
@@ -43,11 +42,11 @@ npm start
 
 ## Assets
 
-Live demo of the application hosted on Heroku: [Historical Search](https://radiant-woodland-13835.herokuapp.com/)
+Live demo of the application hosted on Heroku: [Turn Back Time](https://https://historical-treasures-2021.herokuapp.com/)
 
 The following images shows the functionality of the application: 
  
-![Historical Search Page](./server/public/images/Book_Search_Front_Page.png)
+![Turn Back Time Home Page](./server/public/images/Turn_Back_Time_Home_Page.png)
 
  
 ## Technologies
@@ -55,6 +54,7 @@ The following images shows the functionality of the application:
 - [Express](https://expressjs.com/)
 - [Apollo](https://www.apollographql.com/docs/)
 - [bcrypt](https://www.npmjs.com/package/bcrypt)
+- [neo4j](https://neo4j.com/)
 - JavaScript
 
 ## License
@@ -68,7 +68,6 @@ Feel free to check the [issues page](https://github.com/Susanne85/historicalTrea
 
 ## Tests
 There are no tests currently for this application.
-
 
 ## Questions
 For any questions, please contact the author:

@@ -27,7 +27,6 @@ type Auth{
 }
 
 type Person {
-    _id:ID!
     accessionId:String!
     name:String!
     surname:String!
@@ -36,25 +35,21 @@ type Person {
 }
 
 type Place {
-    _id:ID!
     accessionId:String!
     name:String!
     description:String!
     dateBuilt:String 
 }
 type LivedIn {
-    _id:ID!
     startDate:String!
     endDate:String!
 }
 
 type BuriedIn {
-    _id:ID!
     burialDate:String!
 }
 
 type Married {
-    _id:ID!
     marriageDate:String!
 }
 
@@ -69,7 +64,6 @@ type Mutation{
     addUser(username:String!, email:String!, password:String!):Auth
     saveItem(email:String!,itemData:ItemInput!):User!
     removeItem(email:String!,itemId:String!):User!
-    
 } 
 
 `;

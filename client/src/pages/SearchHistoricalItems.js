@@ -5,6 +5,18 @@ import Auth from '../utils/auth';
 import { saveItemIds, getSavedItemIds } from '../utils/localStorage';
 import { GET_PEOPLE, GET_PLACE } from '../utils/queries';
 import { SAVE_ITEM } from '../utils/mutations';
+function getPlaceName(place) {
+  if (place.length > 0) {
+    return place[0].name
+  }
+  return ''
+}
+function getSpouseName(spouse) {
+  if (spouse.length > 0) {
+    return spouse[0].name + ' ' + spouse[0].surname
+  }
+  return ''
+}
 const SearchHistoricalItems = () => {
 
   const [searchInput, setSearchInput] = useState({
@@ -51,7 +63,10 @@ const SearchHistoricalItems = () => {
           name: item.name + ' ' + item.surname,
           surname: item.surname,
           born: "Born : " + item.born,
-          died: "Died : " + item.died
+          died: "Died : " + item.died,
+          buried: getPlaceName(item.buriedInPlaces),
+          spouse: getSpouseName(item.married),
+          lived: getPlaceName(item.livedInPlaces)
         }));
 
         if (searchInput.searchPerson !== "*") {
@@ -63,7 +78,13 @@ const SearchHistoricalItems = () => {
           accessionId: item.accessionId,
           name: item.name,
           description: item.description,
-          dateBuilt: item.dateBuilt
+          dateBuilt: item.dateBuilt,
+          surname: '',
+          born: '',
+          died: '',
+          buried: '',
+          spouse: '',
+          lived: ''
         }));
 
         if (searchInput.searchPlace !== "*") {
@@ -93,7 +114,7 @@ const SearchHistoricalItems = () => {
     }
 
     const userProfile = Auth.getProfile();
-     
+
     if (itemToSave.surname !== undefined) {
       delete itemToSave.surname;
       delete itemToSave.born;
@@ -105,7 +126,7 @@ const SearchHistoricalItems = () => {
     try {
       const { data } = await saveItem({
         variables: {
-          email:userProfile.data.email,
+          email: userProfile.data.email,
           itemData: {
             ...itemToSave,
           }
@@ -127,35 +148,40 @@ const SearchHistoricalItems = () => {
             Only Person or Place can be searched!
           </Alert>
           <Form onSubmit={handleFormSubmit}>
-            <Form.Row>
-              <Col xs={12} md={8}>
+            <Form.Row>Surname
+              <Col xs={12} md={8} style={({ marginLeft: '1.2rem' })}>
                 <Form.Control
                   name='searchPerson'
                   value={searchInput.searchPerson}
                   onChange={handleInputChange}
                   type='text'
-                  size='lg'
-                  placeholder='Enter name of Person'
+                  size='md'
+                  placeholder='Enter surname of Person'
                 />
-                <br></br>
+              </Col>
+            </Form.Row>
+            <br></br>
+            <Form.Row>Place Name
+              <Col xs={12} md={8}>
                 <Form.Control
                   name='searchPlace'
                   value={searchInput.searchPlace}
                   onChange={handleInputChange}
                   type='text'
-                  size='lg'
+                  size='md'
                   placeholder='Enter name of Place'
                 />
               </Col>
-              <Col xs={12} md={4}>
-                <Button type='submit' variant='success' size='lg'>
-                  Submit Search
-                </Button>
-              </Col>
+            </Form.Row>
+            <br></br>
+            <Form.Row>
+              <Button type='submit' variant='success' size='md'>
+                Submit Search
+              </Button>
             </Form.Row>
           </Form>
         </Container>
-      </Jumbotron>
+      </Jumbotron >
 
       <Container>
         <CardColumns>
@@ -165,10 +191,17 @@ const SearchHistoricalItems = () => {
                 <Card.Body>
                   <Card.Title>{item.name} </Card.Title>
                   <p className='medium'>Accesion ID : {item.accessionId}</p>
-                  <p className='medium'>{item.born}</p>
-                  <p className='medium'>{item.died}</p>
+                  {item.born != '' && <p className='medium'>Born: {item.born}</p>}
+                  {item.spouse != '' && <p className='medium'>Spouse: {item.spouse}</p>}
+                  {item.died != '' &&
+                    <p className='medium'>Died: {item.died}</p>}
+                  {item.buried != '' &&
+                    <p className='medium'>Buried in: {item.buried}</p>}
+                  {item.lived != '' &&
+                    <p className='medium'>Lived in: {item.lived}</p>}
                   <p className='medium'>{item.description}</p>
-                  <p className='medium'>{item.dateBuilt}</p>
+                  {item.dateBuilt != '' &&
+                  <p className='medium'>Date Built: {item.dateBuilt}</p>}
                   {Auth.loggedIn() && (
                     <Button
                       disabled={savedItemIds?.some((savedItemId) => savedItemId === item.accessionId)}

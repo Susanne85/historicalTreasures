@@ -15,13 +15,23 @@ query getMe ($email:String!) {
 }`;
 
 export const GET_PEOPLE = gql`
-query getpeople {
+query getPeople {
 	people {
     accessionId
     name
     surname
     born
     died
+    livedInPlaces {
+      name
+    }
+    buriedInPlaces {
+      name
+    }
+    married {
+      name
+      surname
+    }
   }
 }`;
 

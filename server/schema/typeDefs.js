@@ -3,8 +3,6 @@ const { gql } = require('apollo-server-express')
 const typeDefs = gql`
 type Query{
     me(email:String!):User
-    getPeople:[Person]
-    getPlace:[Place]
 }
 
 type Item {
@@ -32,6 +30,9 @@ type Person {
     surname:String!
     born:String 
     died:String
+    livedInPlaces:[Place!]! @relationship(type:"LivedIn", properties:"LivedIn", direction:OUT)
+    buriedInPlaces:[Place!]! @relationship(type:"BuriedIn", properties:"Buried", direction:OUT)
+    married:[Person!]! @relationship(type:"Married", properties:"Married", direction:OUT)
 }
 
 type Place {
@@ -40,16 +41,16 @@ type Place {
     description:String!
     dateBuilt:String 
 }
-type LivedIn {
+interface LivedIn {
     startDate:String!
     endDate:String!
 }
 
-type BuriedIn {
+interface BuriedIn {
     burialDate:String!
 }
 
-type Married {
+interface Married {
     marriageDate:String!
 }
 

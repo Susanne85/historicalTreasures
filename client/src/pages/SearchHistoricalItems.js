@@ -27,7 +27,7 @@ const SearchHistoricalItems = () => {
   const [searchedItems, setSearchedItems] = useState([]);
   const [savedItemIds, setSavedItemIds] = useState(getSavedItemIds());
   const { error, loading, data: userData } = useQuery(GET_PEOPLE);
-
+  
   const { errorPlace, loadingPlace, data: placeData } = useQuery(GET_PLACE);
 
   const [showAlert, setShowAlert] = useState(false);
@@ -66,7 +66,8 @@ const SearchHistoricalItems = () => {
           died: "Died : " + item.died,
           buried: getPlaceName(item.buriedInPlaces),
           spouse: getSpouseName(item.married),
-          lived: getPlaceName(item.livedInPlaces)
+          lived: getPlaceName(item.livedInPlaces),
+          dateBuilt: ''
         }));
 
         if (searchInput.searchPerson !== "*") {
@@ -191,16 +192,16 @@ const SearchHistoricalItems = () => {
                 <Card.Body>
                   <Card.Title>{item.name} </Card.Title>
                   <p className='medium'>Accesion ID : {item.accessionId}</p>
-                  {item.born != '' && <p className='medium'>Born: {item.born}</p>}
-                  {item.spouse != '' && <p className='medium'>Spouse: {item.spouse}</p>}
-                  {item.died != '' &&
+                  {item.born !== '' && <p className='medium'>Born: {item.born}</p>}
+                  {item.spouse !== '' && <p className='medium'>Spouse: {item.spouse}</p>}
+                  {item.died !== '' &&
                     <p className='medium'>Died: {item.died}</p>}
-                  {item.buried != '' &&
+                  {item.buried !== '' &&
                     <p className='medium'>Buried in: {item.buried}</p>}
-                  {item.lived != '' &&
+                  {item.lived !== '' &&
                     <p className='medium'>Lived in: {item.lived}</p>}
                   <p className='medium'>{item.description}</p>
-                  {item.dateBuilt != '' &&
+                  {item.dateBuilt !== '' &&
                   <p className='medium'>Date Built: {item.dateBuilt}</p>}
                   {Auth.loggedIn() && (
                     <Button
